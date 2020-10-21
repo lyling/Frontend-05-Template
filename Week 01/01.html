@@ -1,0 +1,184 @@
+<html>
+
+<head>
+    <style>
+        .cell {
+            width: 100px;
+            height: 100px;
+            background-color: green;
+            display: inline-block;
+            border: solid 1px white;
+            vertical-align: middle;
+
+            line-height: 100px;
+            font-size: 50px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="board"></div>
+</body>
+<script>
+    const CROSS = 2;
+    const CIRCLE = 1;
+    const SWITCHER = CROSS + CIRCLE;
+
+    //棋盘
+    let pattern = [
+        [2, 0, 0],
+        [0, 1, 0],
+        [0, 0, 0],
+    ];
+
+
+    //绘制棋盘
+    let matSize = 3;
+
+    //当前旗手
+    let color = 1;
+
+    console.log(pattern);
+
+    //显示棋盘
+    function show() {
+        //slot
+        let board = document.getElementById("board");
+        board.innerHTML = "";//清空棋盘
+
+
+        for (let i = 0; i < matSize; i++) {
+            for (let j = 0; j < matSize; j++) {
+                //绘制格子
+                let cell = document.createElement("div");
+                cell.classList.add("cell");
+                cell.innerText =
+                    pattern[i][j] == CROSS ? "❌" :
+                        pattern[i][j] == CIRCLE ? "⭕" : "";
+
+                //点击落子
+                cell.addEventListener("click", () => move(j, i));
+
+                board.appendChild(cell);
+            }
+
+            //换行
+            board.appendChild(document.createElement("br"));
+        }
+
+    }
+
+    //落子
+    function move(x, y) {
+        pattern[y][x] = color;
+
+        //检查胜负
+        if (check(pattern, color)) {
+            alert(color == CROSS ? "❌ is winner" : "⭕ is winner ");
+        }
+
+        color = SWITCHER - color;//切换当前棋手
+        show();
+
+        if (willWin(pattern, color)) {
+            console.log(color == 2 ? "❌ will win" : "⭕ will win");
+        }
+    }
+
+    function check(pattern, color) {
+        //检查横向
+        {
+            for (let i = 0; i < matSize; i++) {
+                let win = true;
+                for (let j = 0; j < matSize; j++) {
+                    if (pattern[i][j] != color) {
+                        win = false;
+                    }
+                }
+
+                if (win) {
+                    return true;
+                }
+            }
+        }
+
+        //检查纵向
+        {
+            for (let j = 0; j < matSize; j++) {
+                let win = true;
+                for (let i = 0; i < matSize; i++) {
+                    if (pattern[i][j] != color) {
+                        win = false;
+                    }
+
+                }
+
+                if (win) {
+                    return true;
+                }
+            }
+        }
+
+        //检查斜线
+        {
+            let win = true;
+
+            for (let j = 0; j < matSize; j++) {
+                if (pattern[j][2 - j] != color) {
+                    win = false;
+                }
+
+
+            }
+
+            if (win) {
+                return true;
+            }
+        }
+
+        {
+            let win = true;
+
+            for (let i = 0; i < matSize; i++) {
+                if (pattern[i][i] != color) {
+                    win = false;
+                }
+            }
+
+
+            if (win) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    function clone(pattern) {
+        return JSON.parse(JSON.stringify(pattern));
+    }
+
+    function willWin(pattern, color) {
+        for (let i = 0; i < matSize; i++) {
+            for (let j = 0; j < matSize; j++) {
+                if (pattern[i][j]) {
+                    continue;
+                }
+                let tmp = clone(pattern);
+                tmp[i][j] = color;
+
+                if (check(tmp, color)) {
+                    return true;
+                }
+
+            }
+        }
+
+        return false;
+    }
+
+    show();
+</script>
+
+</html>
