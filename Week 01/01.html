@@ -27,7 +27,7 @@
 
     //棋盘
     let pattern = [
-        [2, 0, 0],
+        [0, 0, 2],
         [0, 1, 0],
         [0, 0, 0],
     ];
@@ -169,16 +169,62 @@
                 tmp[i][j] = color;
 
                 if (check(tmp, color)) {
-                    return true;
+                    return [j, i];
                 }
 
             }
         }
 
-        return false;
+        return null;
+    }
+
+    function bestChoice(pattern, color) {
+        let p;
+        if (p = willWin(pattern, color)) {
+            return {
+                point: p,
+                result: 1,
+            }
+        }
+
+        let result = -Infinity;//初始值; -1:输, 0:平, 1:赢
+        let point = null;
+        for (let i = 0; i < matSize; i++) {
+            for (let j = 0; j < matSize; j++) {
+
+                if (pattern[i][j]) {
+                    continue;
+                }
+
+                //走空格
+                //1.走到当前空格
+                let tmp = clone(pattern);
+                tmp[i][j] = color;
+
+
+                //对方最优即为我方最差
+                //2.计算对方(SWITCHER-color)最好结果
+                let r = bestChoice(tmp, SWITCHER - color).result;
+
+                //超过当前最好结果
+                //3.找到对方比较差的结果, 比当前结果差
+                if (-r > result) {
+                    result = -r;
+                    point = [j, i];
+                }
+
+            }
+        }
+
+        return {
+            point: point,
+            result: point ? result : 0,
+        }
+
     }
 
     show();
+    console.log(bestChoice(pattern, color));
 </script>
 
 </html>
