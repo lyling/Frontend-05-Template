@@ -27,9 +27,9 @@
 
     //棋盘
     let pattern = [
-        [0, 0, 2],
-        [0, 1, 0],
-        [0, 0, 0],
+        0, 0, 0,
+        0, 0, 0,
+        0, 0, 0,
     ];
 
 
@@ -54,8 +54,8 @@
                 let cell = document.createElement("div");
                 cell.classList.add("cell");
                 cell.innerText =
-                    pattern[i][j] == CROSS ? "❌" :
-                        pattern[i][j] == CIRCLE ? "⭕" : "";
+                    pattern[i * 3 + j] == CROSS ? "❌" :
+                        pattern[i * 3 + j] == CIRCLE ? "⭕" : "";
 
                 //点击落子
                 cell.addEventListener("click", () => move(j, i));
@@ -71,7 +71,7 @@
 
     //落子
     function move(x, y) {
-        pattern[y][x] = color;
+        pattern[y * 3 + x] = color;
 
         //检查胜负
         if (check(pattern, color)) {
@@ -80,10 +80,11 @@
 
         color = SWITCHER - color;//切换当前棋手
         show();
+        console.log(bestChoice(pattern, color));
 
-        if (willWin(pattern, color)) {
-            console.log(color == 2 ? "❌ will win" : "⭕ will win");
-        }
+        // if (willWin(pattern, color)) {
+        //     console.log(color == CROSS ? "❌ will win" : "⭕ will win");
+        // }
     }
 
     function check(pattern, color) {
@@ -92,7 +93,7 @@
             for (let i = 0; i < matSize; i++) {
                 let win = true;
                 for (let j = 0; j < matSize; j++) {
-                    if (pattern[i][j] != color) {
+                    if (pattern[i * 3 + j] != color) {
                         win = false;
                     }
                 }
@@ -108,7 +109,7 @@
             for (let j = 0; j < matSize; j++) {
                 let win = true;
                 for (let i = 0; i < matSize; i++) {
-                    if (pattern[i][j] != color) {
+                    if (pattern[i * 3 + j] != color) {
                         win = false;
                     }
 
@@ -125,7 +126,7 @@
             let win = true;
 
             for (let j = 0; j < matSize; j++) {
-                if (pattern[j][2 - j] != color) {
+                if (pattern[j * 3 + 2 - j] != color) {
                     win = false;
                 }
 
@@ -141,7 +142,7 @@
             let win = true;
 
             for (let i = 0; i < matSize; i++) {
-                if (pattern[i][i] != color) {
+                if (pattern[i * 3 + i] != color) {
                     win = false;
                 }
             }
@@ -156,17 +157,18 @@
     }
 
     function clone(pattern) {
-        return JSON.parse(JSON.stringify(pattern));
+        return Object.create(pattern);
+        //return JSON.parse(JSON.stringify(pattern));
     }
 
     function willWin(pattern, color) {
         for (let i = 0; i < matSize; i++) {
             for (let j = 0; j < matSize; j++) {
-                if (pattern[i][j]) {
+                if (pattern[i * 3 + j]) {
                     continue;
                 }
                 let tmp = clone(pattern);
-                tmp[i][j] = color;
+                tmp[i * 3 + j] = color;
 
                 if (check(tmp, color)) {
                     return [j, i];
@@ -189,28 +191,33 @@
 
         let result = -Infinity;//初始值; -1:输, 0:平, 1:赢
         let point = null;
-        for (let i = 0; i < matSize; i++) {
+        outer: for (let i = 0; i < matSize; i++) {
             for (let j = 0; j < matSize; j++) {
 
-                if (pattern[i][j]) {
+                if (pattern[i * 3 + j]) {
                     continue;
                 }
 
                 //走空格
                 //1.走到当前空格
                 let tmp = clone(pattern);
-                tmp[i][j] = color;
+                tmp[i * 3 + j] = color;
 
 
                 //对方最优即为我方最差
                 //2.计算对方(SWITCHER-color)最好结果
-                let r = bestChoice(tmp, SWITCHER - color).result;
+                let opp = bestChoice(tmp, SWITCHER - color);
 
                 //超过当前最好结果
                 //3.找到对方比较差的结果, 比当前结果差
-                if (-r > result) {
-                    result = -r;
-                    point = [j, i];
+                if (-opp.result > result) {
+                    result = - opp.result;
+                    point = [j, i];//为什么
+                }
+
+                //找到胜利, 结束探索
+                if (result == 1) {
+                    break outer;
                 }
 
             }
