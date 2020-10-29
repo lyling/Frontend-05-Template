@@ -1,0 +1,78 @@
+<html>
+
+<head>
+    <style>
+        .cell {
+            display: inline-block;
+            line-height: 7px;
+            width: 6px;
+            height: 6px;
+            background-color: gray;
+            border-bottom: solid 1px white;
+            border-right: solid 1px white;
+            vertical-align: top;
+        }
+
+        #container {
+            width: 700px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="container">
+
+    </div>
+    <button onclick="localStorage['map'] = JSON.stringify(map);">Save</button>
+    <script>
+        let map = localStorage["map"] ? JSON.parse(localStorage["map"]) : Array(10000).fill(0);
+
+        let container = document.getElementById("container");
+
+        let mousedown = false;
+        let clear = false;
+
+        document.addEventListener("mousedown", e => {
+            mousedown = true;
+            clear = (e.which === 3);//3: Right button
+        });
+
+        document.addEventListener("mouseup", () => mousedown = false);
+        document.addEventListener("contextmenu", e => e.preventDefault());//禁用右键菜单
+
+        for (let x = 0; x < 100; x++) {
+            for (let y = 0; y < 100; y++) {
+
+                let cell = document.createElement("div");
+                cell.classList.add("cell");
+
+                if (map[x * 100 + y] == 1) {
+                    cell.style.backgroundColor = "black";
+                }
+
+                cell.addEventListener("mousemove", () => {
+                    //鼠标按下时设置颜色和数组值, 1为选中
+                    if (mousedown) {
+                        //清除
+                        if (clear) {
+                            cell.style.backgroundColor = "";
+                            map[x * 100 + y] = 0;
+                        }
+                        else {
+                            cell.style.backgroundColor = "black";
+                            map[x * 100 + y] = 1;
+                        }
+                    }
+                });
+
+                container.appendChild(cell);
+            }
+
+        }
+
+
+
+    </script>
+</body>
+
+</html>
