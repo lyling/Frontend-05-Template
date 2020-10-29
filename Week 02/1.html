@@ -25,6 +25,10 @@
     </div>
     <button onclick="localStorage['map'] = JSON.stringify(map);">Save</button>
     <script>
+
+        const row = 100;
+        const column = 100;
+
         let map = localStorage["map"] ? JSON.parse(localStorage["map"]) : Array(10000).fill(0);
 
         let container = document.getElementById("container");
@@ -40,13 +44,13 @@
         document.addEventListener("mouseup", () => mousedown = false);
         document.addEventListener("contextmenu", e => e.preventDefault());//禁用右键菜单
 
-        for (let x = 0; x < 100; x++) {
-            for (let y = 0; y < 100; y++) {
+        for (let x = 0; x < column; x++) {
+            for (let y = 0; y < row; y++) {
 
                 let cell = document.createElement("div");
                 cell.classList.add("cell");
 
-                if (map[x * 100 + y] == 1) {
+                if (map[x * column + y] == 1) {
                     cell.style.backgroundColor = "black";
                 }
 
@@ -56,11 +60,11 @@
                         //清除
                         if (clear) {
                             cell.style.backgroundColor = "";
-                            map[x * 100 + y] = 0;
+                            map[x * column + y] = 0;
                         }
                         else {
                             cell.style.backgroundColor = "black";
-                            map[x * 100 + y] = 1;
+                            map[x * column + y] = 1;
                         }
                     }
                 });
@@ -70,6 +74,44 @@
 
         }
 
+        //寻路
+        function path(map, start, end) {
+            let queue = [start];//广度优先(队列)
+
+            function insert(x, y) {
+
+                //边界检测
+                if (x < 0 || x >= column || y < 0 || y >= row) {
+                    return;
+                }
+
+                //已标记,跳过
+                if (map[x * column + y]) {
+                    return;
+                }
+
+                map[x * column + y] = 2;//2: 标记可移动
+                queue.push([x, y]);//插入尾部
+            }
+
+            //出列直到队列为空
+            while (queue.length) {
+                let [x, y] = queue.shift();//出列
+                console.log(x, y);
+                if (x === end[0] && y === end[1]) {
+                    return true;
+                }
+
+                insert(x - 1, y);
+                insert(x, y - 1);
+                insert(x + 1, y);
+                insert(x, y + 1)
+
+            }
+
+            return false;
+
+        }
 
 
     </script>
