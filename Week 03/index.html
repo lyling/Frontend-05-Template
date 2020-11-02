@@ -44,7 +44,8 @@
 
     let source = [];
     //let expression = "10 * 25 / 2";
-    let expression = "1 + 2 + 3";
+    // let expression = "1 + 2 + 3";
+    let expression = "1 + 2 * 5 + 3";
 
     for (let token of tokenize(expression)) {
         if (token.type !== "Whitespace" && token.type !== "LineTerminator") {
@@ -53,7 +54,18 @@
     }
 
     function Expression(tokens) {
+        if (source[0].type === "AdditiveExpression" && source[1] && source[1].type === "EOF") {
+            let node = {
+                type: "Expression",
+                children: [source.shift(), source.shift()]
+            }
 
+            source.unshift(node);
+            return node;
+        }
+
+        AdditiveExpression(source);
+        return Expression(source);
     }
 
     function AdditiveExpression(source) {
@@ -126,7 +138,7 @@
     }
 
     //MultiplicativeExpression("10 * 25");
-    console.log(AdditiveExpression(source));
+    console.log(Expression(source));
 </script>
 
 </html>
